@@ -387,11 +387,12 @@ footer{background:var(--plum);color:rgba(255,248,241,.55);padding:26px var(--gut
     }, 256) }));
     seal.rotation.x = -Math.PI / 2; seal.position.y = T + 0.002; lid.add(seal);
     // the bento cake
-    const frost = new THREE.MeshPhysicalMaterial({ color: col(0xf2c9cf), roughness: 0.45, clearcoat: 0.3, clearcoatRoughness: 0.4 });
+    const bentoStreak = streakTex();
+    const frost = new THREE.MeshPhysicalMaterial({ color: col(0xf2c9cf), map: bentoStreak, bumpMap: bentoStreak, bumpScale: 0.004, roughness: 0.45, clearcoat: 0.3, clearcoatRoughness: 0.4, side: THREE.DoubleSide });
     const pipeM = new THREE.MeshPhysicalMaterial({ color: col(0xfbeee8), roughness: 0.5, clearcoat: 0.2 });
     const cake = new THREE.Group(); cake.position.y = 0.05; box.add(cake);
     const cr = 0.8, ch = 0.55;
-    const body = new THREE.Mesh(new THREE.CylinderGeometry(cr, cr, ch, 96), frost); body.position.y = ch / 2; cake.add(body);
+    cake.add(new THREE.Mesh(frostedBody(cr, ch), frost));
     cake.add(piping(cr - 0.04, ch - 0.02, 34, 0.11, pipeM));
     cake.add(piping(cr + 0.02, 0.0, 36, 0.1, pipeM));
     // message on top, redrawn as you type
@@ -399,7 +400,7 @@ footer{background:var(--plum);color:rgba(255,248,241,.55);padding:26px var(--gut
     const topTex = new THREE.CanvasTexture(topCanvas); topTex.encoding = THREE.sRGBEncoding; topTex.anisotropy = 4;
     const drawTop = name => {
       const x = topCanvas.getContext('2d'), s = 512;
-      x.clearRect(0, 0, s, s); x.fillStyle = '#f2c9cf'; x.beginPath(); x.arc(s / 2, s / 2, s / 2, 0, TAU); x.fill();
+      x.clearRect(0, 0, s, s);
       x.fillStyle = '#4A1730'; x.textAlign = 'center'; x.textBaseline = 'middle';
       x.font = 'italic 64px "DM Serif Display", serif'; x.fillText('Happy', s / 2, s / 2 - 70);
       x.fillText('Birthday', s / 2, s / 2);
@@ -407,8 +408,8 @@ footer{background:var(--plum);color:rgba(255,248,241,.55);padding:26px var(--gut
       topTex.needsUpdate = true;
     };
     drawTop(''); if (document.fonts) document.fonts.ready.then(() => drawTop(state.name));
-    const top = new THREE.Mesh(new THREE.CircleGeometry(cr - 0.001, 96), new THREE.MeshPhysicalMaterial({ map: topTex, roughness: 0.45, clearcoat: 0.3 }));
-    top.rotation.x = -Math.PI / 2; top.position.y = ch + 0.001; cake.add(top);
+    const top = new THREE.Mesh(new THREE.CircleGeometry(cr - 0.09, 96), new THREE.MeshPhysicalMaterial({ map: topTex, roughness: 0.45, clearcoat: 0.3, transparent: true }));
+    top.rotation.x = -Math.PI / 2; top.position.y = ch + 0.02; cake.add(top);
     // a few sprinkles and pearls
     const pearl = new THREE.MeshStandardMaterial({ color: col(0xd9b26f), metalness: 1, roughness: 0.25 });
     cake.add(batch(new THREE.SphereGeometry(1, 14, 10), pearl, Array.from({ length: 10 }, (_, i) => { const a = i / 10 * TAU + 0.15; return mtx(Math.sin(a) * (cr - 0.04), ch + 0.11, Math.cos(a) * (cr - 0.04), 0.025, 0.025, 0.025); })));
@@ -439,14 +440,50 @@ footer{background:var(--plum);color:rgba(255,248,241,.55);padding:26px var(--gut
   }
   const bento = initBento();
 
+  /* ---------- realistic cake parts ---------- */
+  // spatula strokes: faint horizontal streaks used as both a tint map and a bump map
+  function streakTex() {
+    return canvasTex((x, s) => {
+      x.fillStyle = '#ececec'; x.fillRect(0, 0, s, s);
+      for (let i = 0; i < 260; i++) {
+        const y0 = Math.random() * s, amp = Math.random() * 3, f = 2 + Math.random() * 4, ph = Math.random() * 6;
+        x.strokeStyle = Math.random() < 0.5 ? `rgba(255,255,255,${0.1 + Math.random() * 0.3})` : `rgba(120,110,105,${0.04 + Math.random() * 0.12})`;
+        x.lineWidth = 0.6 + Math.random() * 2.8;
+        x.beginPath(); for (let px = 0; px <= s; px += 8) { const yy = y0 + Math.sin(px / s * f * TAU + ph) * amp; px ? x.lineTo(px, yy) : x.moveTo(px, yy); } x.stroke();
+      }
+      for (let i = 0; i < 2500; i++) { x.fillStyle = `rgba(${Math.random() < 0.5 ? '0,0,0' : '255,255,255'},${Math.random() * 0.06})`; x.fillRect(Math.random() * s, Math.random() * s, 1.5, 1.5); }
+    }, 512, [1, 1]);
+  }
+  // a hand-frosted cake: slightly flared base, rolled top edge, wavy spatula marks
+  function frostedBody(R, H, segs = 160) {
+    const pts = [[R + 0.012, 0]];
+    for (let i = 1; i <= 12; i++) pts.push([R + 0.012 * (1 - i / 12), (H - 0.07) * i / 12]);
+    for (let i = 1; i <= 8; i++) { const a = i / 8 * Math.PI / 2; pts.push([R - 0.07 + 0.07 * Math.cos(a), H - 0.07 + 0.07 * Math.sin(a)]); }
+    for (let i = 1; i <= 14; i++) pts.push([Math.max(0.0005, (R - 0.07) * (1 - i / 14)), H + 0.01 * Math.sin(i / 14 * Math.PI)]);
+    const g = new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), segs);
+    const p = g.attributes.position;
+    for (let i = 0; i < p.count; i++) {
+      const x = p.getX(i), y = p.getY(i), z = p.getZ(i), r = Math.hypot(x, z), th = Math.atan2(x, z);
+      if (r > R - 0.075 && y < H - 0.06) {
+        const k = 1 + (0.0045 * Math.sin(y * 55 + th * 2) + 0.003 * Math.sin(th * 7 + y * 9) + 0.0025 * Math.sin(th * 23 + 1.3)) / R;
+        p.setX(i, x * k); p.setZ(i, z * k);
+      } else if (y > H - 0.02 && r < R - 0.07) {
+        p.setY(i, y + 0.006 * Math.sin(r * 28 + th * 3) + 0.003 * Math.sin(th * 9) * (r / R));
+      }
+    }
+    g.computeVertexNormals();
+    return g;
+  }
+  const dripGeo = new THREE.LatheGeometry([[0, 0.03], [0.034, 0.03], [0.036, -0.25], [0.034, -0.62], [0.042, -0.84], [0.05, -0.93], [0.042, -0.99], [0, -1.01]].map(([r, y]) => new THREE.Vector2(r, y)), 12);
+
   /* ---------- flavour cake ---------- */
   const FLAV = [
-    { name: 'Black Forest', frost: 0xf6efe8, side: 0x3b2018, deco: 'blackforest' },
-    { name: 'Butterscotch', frost: 0xeccb93, side: 0xeccb93, deco: 'butterscotch' },
-    { name: 'Pineapple', frost: 0xfbf1d8, side: 0xfbf1d8, deco: 'pineapple' },
-    { name: 'Red Velvet', frost: 0xf8f2ea, side: 0xf8f2ea, deco: 'redvelvet' },
-    { name: 'Fresh Fruit', frost: 0xfaf4ec, side: 0xfaf4ec, deco: 'fruit' },
-    { name: 'Chocolate Overload', frost: 0x2a140d, side: 0x2a140d, deco: 'choc' }
+    { name: 'Black Forest', frost: 0xf7f1ea, ros: 0xf7f1ea, rough: 0.5, coat: 0.15, deco: 'blackforest' },
+    { name: 'Butterscotch', frost: 0xebcb97, ros: 0xf3dfba, rough: 0.45, coat: 0.25, deco: 'butterscotch' },
+    { name: 'Pineapple', frost: 0xfbf2dc, ros: 0xfbf2dc, rough: 0.5, coat: 0.15, deco: 'pineapple' },
+    { name: 'Red Velvet', frost: 0xf8f3ec, ros: 0xf8f3ec, rough: 0.55, coat: 0.1, deco: 'redvelvet' },
+    { name: 'Fresh Fruit', frost: 0xfaf5ee, ros: 0xfaf5ee, rough: 0.5, coat: 0.15, deco: 'fruit' },
+    { name: 'Chocolate Overload', frost: 0x2b1409, ros: 0x3a1d10, rough: 0.2, coat: 1, deco: 'choc' }
   ];
   function initFlav() {
     const canvas = document.getElementById('flav');
@@ -454,59 +491,176 @@ footer{background:var(--plum);color:rgba(255,248,241,.55);padding:26px var(--gut
     const renderer = makeRenderer(canvas); if (!renderer) return null;
     const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
     const key = studio(renderer, scene, 3);
+    key.shadow.mapSize.set(2048, 2048);
     const holder = new THREE.Group(); scene.add(holder); key.target = holder;
-    const frostTop = new THREE.MeshPhysicalMaterial({ roughness: 0.42, clearcoat: 0.4, clearcoatRoughness: 0.3 });
-    const frostSide = new THREE.MeshPhysicalMaterial({ roughness: 0.42, clearcoat: 0.4, clearcoatRoughness: 0.3, bumpMap: noiseTex('#888', 7000, 0.4, [6, 2]), bumpScale: 0.006 });
+    let sd = 11; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
     const R = 1.25, Hh = 0.95;
+    const streak = streakTex();
+    const frost = new THREE.MeshPhysicalMaterial({ map: streak, bumpMap: streak, bumpScale: 0.004, roughness: 0.5, clearcoat: 0.15, clearcoatRoughness: 0.35, side: THREE.DoubleSide });
+    const rosM = new THREE.MeshPhysicalMaterial({ bumpMap: noiseTex('#888', 6000, 0.5, [2, 2]), bumpScale: 0.003, roughness: 0.5, clearcoat: 0.15 });
     const cake = new THREE.Group(); holder.add(cake);
-    const side = new THREE.Mesh(new THREE.CylinderGeometry(R, R, Hh, 110, 1, true), frostSide); side.position.y = Hh / 2; cake.add(side);
-    const topD = new THREE.Mesh(new THREE.CircleGeometry(R, 110), frostTop); topD.rotation.x = -Math.PI / 2; topD.position.y = Hh; cake.add(topD);
-    const pipeTop = piping(R - 0.08, Hh - 0.01, 26, 0.17, frostTop); cake.add(pipeTop);
-    const pipeBase = piping(R + 0.03, 0, 40, 0.12, frostTop); cake.add(pipeBase);
-    const board = new THREE.Mesh(new THREE.CylinderGeometry(1.65, 1.65, 0.05, 96), new THREE.MeshStandardMaterial({ color: col(0xd8b06c), metalness: 0.9, roughness: 0.3 })); board.position.y = -0.03; cake.add(board);
-    // decorations per flavour
+    cake.add(new THREE.Mesh(frostedBody(R, Hh), frost));
+    // piped shells: a ring on top and a smaller border at the base
+    const topRos = Array.from({ length: 22 }, (_, i) => i / 22 * TAU + 0.07);
+    cake.add(batch(rosetteGeo, rosM, topRos.map(a => mtx(Math.sin(a) * (R - 0.15), Hh - 0.01, Math.cos(a) * (R - 0.15), 0.27, 0.17, 0.27, a * 3))));
+    cake.add(batch(rosetteGeo, rosM, Array.from({ length: 44 }, (_, i) => { const a = i / 44 * TAU; return mtx(Math.sin(a) * (R + 0.04), 0, Math.cos(a) * (R + 0.04), 0.13, 0.1, 0.13, a * 5, 0, 0.4 * Math.sin(a * 44)); })));
+    // gold foil board with a scalloped edge and crinkle
+    const boardGeo = new THREE.CylinderGeometry(1.72, 1.72, 0.035, 192, 1);
+    const bp = boardGeo.attributes.position;
+    for (let i = 0; i < bp.count; i++) { const x = bp.getX(i), z = bp.getZ(i), r = Math.hypot(x, z); if (r > 1.6) { const th = Math.atan2(x, z), k = 1 + 0.012 * Math.cos(th * 36); bp.setX(i, x * k); bp.setZ(i, z * k); } }
+    boardGeo.computeVertexNormals();
+    const foil = canvasTex((x, s) => { x.fillStyle = '#8a8a8a'; x.fillRect(0, 0, s, s); for (let i = 0; i < 500; i++) { x.strokeStyle = Math.random() < 0.5 ? 'rgba(255,255,255,.18)' : 'rgba(0,0,0,.18)'; x.lineWidth = Math.random() * 2; x.beginPath(); const a = Math.random() * s, b = Math.random() * s; x.moveTo(a, b); x.lineTo(a + (Math.random() - 0.5) * 60, b + (Math.random() - 0.5) * 60); x.stroke(); } }, 512, [2, 2], false);
+    const board = new THREE.Mesh(boardGeo, new THREE.MeshStandardMaterial({ color: col(0xf0d394), metalness: 0.55, roughness: 0.28, bumpMap: foil, bumpScale: 0.01 }));
+    board.position.y = -0.018; cake.add(board);
+    // soft darkening where the cake meets the board
+    const ao = new THREE.Mesh(new THREE.RingGeometry(R - 0.05, R + 0.42, 128), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false,
+      map: canvasTex((x, s) => { const g = x.createLinearGradient(0, 0, s, 0); g.addColorStop(0, 'rgba(40,20,10,.45)'); g.addColorStop(1, 'rgba(40,20,10,0)'); x.fillStyle = g; x.fillRect(0, 0, s, s); }, 64, [1, 1], false) }));
+    // RingGeometry uvs are planar, so remap u to the radial distance for the gradient
+    const au = ao.geometry.attributes.uv, ap = ao.geometry.attributes.position;
+    for (let i = 0; i < au.count; i++) au.setXY(i, (Math.hypot(ap.getX(i), ap.getY(i)) - (R - 0.05)) / 0.47, 0.5);
+    ao.rotation.x = -Math.PI / 2; ao.position.y = 0.002; cake.add(ao);
+
+    // ---- materials for toppings
+    const P = (hex, rough, coat = 0, extra = {}) => new THREE.MeshPhysicalMaterial(Object.assign({ color: col(hex), roughness: rough, clearcoat: coat, clearcoatRoughness: 0.15 }, extra));
     const M = {
-      cherry: new THREE.MeshPhysicalMaterial({ color: col(0x8e1222), roughness: 0.15, clearcoat: 1 }),
-      choc: new THREE.MeshPhysicalMaterial({ color: col(0x2a140d), roughness: 0.25, clearcoat: 0.8 }),
-      gold: new THREE.MeshStandardMaterial({ color: col(0xd9b26f), metalness: 1, roughness: 0.25 }),
-      praline: new THREE.MeshStandardMaterial({ color: col(0xc58a3c), roughness: 0.5 }),
-      pine: new THREE.MeshPhysicalMaterial({ color: col(0xf2c94c), roughness: 0.3, clearcoat: 0.6 }),
-      crumb: new THREE.MeshStandardMaterial({ color: col(0x8f1d2c), roughness: 0.95 }),
-      kiwi: new THREE.MeshPhysicalMaterial({ color: col(0x7aa43a), roughness: 0.3, clearcoat: 0.5 }),
-      orange: new THREE.MeshPhysicalMaterial({ color: col(0xe88a2e), roughness: 0.3, clearcoat: 0.5 }),
-      straw: new THREE.MeshPhysicalMaterial({ color: col(0xc8243a), roughness: 0.25, clearcoat: 0.7 })
+      darkChoc: P(0x2a140b, 0.3, 0.7), milkChoc: P(0x5a301b, 0.4, 0.4), ganache: P(0x24100a, 0.14, 1),
+      caramel: P(0x9a5a1f, 0.14, 1), praline: P(0xc58a3c, 0.55, 0.2, { bumpMap: noiseTex('#888', 4000, 0.6, [3, 3]), bumpScale: 0.01 }),
+      cherry: P(0x7a0c18, 0.12, 1), stem: P(0x5d6b2a, 0.6), crumb: P(0x8a1b26, 0.95, 0, { bumpMap: noiseTex('#888', 5000, 0.8, [2, 2]), bumpScale: 0.02 }),
+      gold: new THREE.MeshStandardMaterial({ color: col(0xd9b26f), metalness: 1, roughness: 0.22 }),
+      goldLeaf: new THREE.MeshStandardMaterial({ color: col(0xdcb46c), metalness: 1, roughness: 0.3, side: THREE.DoubleSide }),
+      cocoa: P(0x4a2a1b, 0.97, 0, { bumpMap: noiseTex('#888', 6000, 0.9, [2, 2]), bumpScale: 0.015 }),
+      blueberry: P(0x2c355f, 0.55, 0.1)
     };
-    let sd = 3; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
-    const ring = (n, r, f) => Array.from({ length: n }, (_, i) => { const a = i / n * TAU; return f(Math.sin(a) * r, Math.cos(a) * r, a, i); });
-    const sphere = new THREE.SphereGeometry(1, 20, 14), cube = new THREE.BoxGeometry(1, 1, 1);
+    const sphere = new THREE.SphereGeometry(1, 20, 14), lump = new THREE.IcosahedronGeometry(1, 0), curl = new THREE.CylinderGeometry(1, 1, 1, 10, 1, true, 0, Math.PI * 1.3);
+    curl.scale(1, 1, 1);
+    const onSide = (n, y0, y1, s0, s1, extra = 0) => Array.from({ length: n }, () => {
+      const a = rnd() * TAU, y = y0 + rnd() * (y1 - y0), r = R + 0.012 + extra, s = s0 + rnd() * (s1 - s0);
+      return mtx(Math.sin(a) * r, y, Math.cos(a) * r, s, s * (0.4 + rnd() * 0.6), s, a + rnd(), rnd() * 3, rnd() * 3);
+    });
+    const onTop = (n, r0, r1, y, s0, s1) => Array.from({ length: n }, () => {
+      const a = rnd() * TAU, r = r0 + Math.sqrt(rnd()) * (r1 - r0), s = s0 + rnd() * (s1 - s0);
+      return mtx(Math.sin(a) * r, Hh + y + rnd() * 0.02, Math.cos(a) * r, s, s * (0.4 + rnd() * 0.6), s, rnd() * TAU, rnd() * 3, rnd() * 3);
+    });
+    const drips = (mat, n, lmin, lmax) => batch(dripGeo, mat, Array.from({ length: n }, (_, i) => { const a = (i + rnd() * 0.6) / n * TAU, len = lmin + Math.pow(rnd(), 1.5) * (lmax - lmin); return mtx(Math.sin(a) * (R + 0.01), Hh + 0.005, Math.cos(a) * (R + 0.01), 1, len, 1); }));
+    const glazeTop = mat => { const m = new THREE.Mesh(new THREE.CylinderGeometry(R - 0.03, R - 0.03, 0.02, 128), mat); m.position.y = Hh + 0.012; return m; };
+    function cherry() {
+      const g = new THREE.Group();
+      const b = new THREE.Mesh(sphere, M.cherry); b.scale.set(0.085, 0.078, 0.085); g.add(b);
+      const st = new THREE.Mesh(new THREE.TubeGeometry(new THREE.QuadraticBezierCurve3(new THREE.Vector3(0, 0.06, 0), new THREE.Vector3(0.02, 0.17, 0), new THREE.Vector3(0.07, 0.24, 0.02)), 10, 0.006, 5), M.stem); g.add(st);
+      return g;
+    }
+    const tex = draw => canvasTex(draw, 256);
+    // fruit textures
+    const kiwiTop = tex((x, s) => {
+      const c = s / 2; x.fillStyle = '#6b4a2a'; x.beginPath(); x.arc(c, c, c, 0, TAU); x.fill();
+      const g = x.createRadialGradient(c, c, 0, c, c, c * 0.95); g.addColorStop(0, '#f4f1d0'); g.addColorStop(0.22, '#e6eba0'); g.addColorStop(0.35, '#9cc04a'); g.addColorStop(1, '#6f9a2c');
+      x.fillStyle = g; x.beginPath(); x.arc(c, c, c * 0.95, 0, TAU); x.fill();
+      for (let i = 0; i < 60; i++) { const a = rnd() * TAU, r = c * (0.3 + rnd() * 0.08); x.fillStyle = '#1b1a12'; x.beginPath(); x.ellipse(c + Math.cos(a) * r, c + Math.sin(a) * r, 4, 2, a, 0, TAU); x.fill(); }
+      x.strokeStyle = 'rgba(255,255,230,.25)'; for (let i = 0; i < 40; i++) { const a = i / 40 * TAU; x.beginPath(); x.moveTo(c + Math.cos(a) * c * 0.25, c + Math.sin(a) * c * 0.25); x.lineTo(c + Math.cos(a) * c * 0.9, c + Math.sin(a) * c * 0.9); x.stroke(); }
+    });
+    const strawTex = tex((x, s) => { x.fillStyle = '#c21d33'; x.fillRect(0, 0, s, s); for (let i = 0; i < 160; i++) { const px = rnd() * s, py = rnd() * s; x.fillStyle = 'rgba(120,0,15,.6)'; x.beginPath(); x.ellipse(px, py + 1, 4, 3, 0, 0, TAU); x.fill(); x.fillStyle = '#f2d36b'; x.beginPath(); x.ellipse(px, py, 1.6, 2.4, 0, 0, TAU); x.fill(); } });
+    const pineTex = tex((x, s) => { const c = s / 2; const g = x.createRadialGradient(c, c, c * 0.25, c, c, c); g.addColorStop(0, '#fff2a8'); g.addColorStop(1, '#f2c23e'); x.fillStyle = g; x.fillRect(0, 0, s, s); x.strokeStyle = 'rgba(200,140,20,.35)'; for (let i = 0; i < 90; i++) { const a = i / 90 * TAU; x.beginPath(); x.moveTo(c + Math.cos(a) * c * 0.3, c + Math.sin(a) * c * 0.3); x.lineTo(c + Math.cos(a) * c, c + Math.sin(a) * c); x.stroke(); } });
+    const orangeTex = tex((x, s) => { x.fillStyle = '#f39a2e'; x.fillRect(0, 0, s, s); for (let i = 0; i < 300; i++) { x.fillStyle = `rgba(255,${200 + rnd() * 40 | 0},120,.35)`; x.beginPath(); x.ellipse(rnd() * s, rnd() * s, 6, 2, rnd() * 3, 0, TAU); x.fill(); } });
+
     const decos = {
-      blackforest: [batch(sphere, M.cherry, ring(8, R - 0.42, (x, z) => mtx(x, Hh + 0.1, z, 0.1, 0.1, 0.1))), batch(cube, M.choc, Array.from({ length: 70 }, () => { const a = rnd() * TAU, r = rnd() * (R - 0.55); return mtx(Math.sin(a) * r, Hh + 0.01, Math.cos(a) * r, 0.09, 0.01, 0.03, rnd() * TAU); }))],
-      butterscotch: [batch(cube, M.praline, Array.from({ length: 90 }, () => { const a = rnd() * TAU, r = rnd() * (R - 0.3); return mtx(Math.sin(a) * r, Hh + 0.015, Math.cos(a) * r, 0.05, 0.03, 0.05, rnd() * TAU, rnd(), rnd()); })), batch(sphere, M.gold, ring(12, R - 0.08, (x, z) => mtx(x, Hh + 0.2, z, 0.035, 0.035, 0.035)))],
-      pineapple: [batch(cube, M.pine, ring(10, R - 0.45, (x, z, a) => mtx(x, Hh + 0.04, z, 0.22, 0.07, 0.12, a))), batch(sphere, M.cherry, [mtx(0, Hh + 0.1, 0, 0.11, 0.11, 0.11)])],
-      redvelvet: [batch(sphere, M.crumb, Array.from({ length: 160 }, () => { const a = rnd() * TAU, r = (0.55 + rnd() * 0.45) * (R - 0.2); return mtx(Math.sin(a) * r, Hh + 0.015, Math.cos(a) * r, 0.03, 0.02, 0.03); }))],
-      fruit: [batch(sphere, M.straw, ring(5, 0.5, (x, z) => mtx(x, Hh + 0.08, z, 0.1, 0.13, 0.1))), batch(new THREE.CylinderGeometry(1, 1, 1, 24), M.kiwi, ring(5, 0.5, (x, z, a) => mtx(x * 0.45, Hh + 0.04, z * 0.45, 0.13, 0.03, 0.13, 0, 0.3, a))), batch(new THREE.CylinderGeometry(1, 1, 1, 3), M.orange, ring(6, R - 0.42, (x, z, a) => mtx(x, Hh + 0.04, z, 0.12, 0.03, 0.12, a)))],
-      choc: [batch(cube, M.choc, ring(7, 0.35, (x, z, a) => mtx(x, Hh + 0.2, z, 0.3, 0.38, 0.02, a, -0.2, 0.2))), batch(sphere, M.gold, ring(14, R - 0.08, (x, z) => mtx(x, Hh + 0.2, z, 0.035, 0.035, 0.035)))]
+      blackforest: (() => {
+        const g = new THREE.Group();
+        g.add(batch(curl, M.darkChoc, onSide(3200, 0.03, Hh - 0.05, 0.022, 0.05)));
+        g.add(batch(curl, M.milkChoc, onSide(1200, 0.03, Hh - 0.05, 0.018, 0.04)));
+        g.add(batch(curl, M.darkChoc, onTop(260, 0, 0.62, 0.01, 0.02, 0.045)));
+        topRos.filter((_, i) => i % 2 === 0).forEach(a => { const c = cherry(); c.position.set(Math.sin(a) * (R - 0.15), Hh + 0.21, Math.cos(a) * (R - 0.15)); c.rotation.y = a; g.add(c); });
+        return g;
+      })(),
+      butterscotch: (() => {
+        const g = new THREE.Group();
+        g.add(drips(M.caramel, 34, 0.12, 0.42));
+        g.add(glazeTop(M.caramel));
+        g.add(batch(lump, M.praline, onSide(700, 0.02, 0.32, 0.018, 0.04)));
+        g.add(batch(lump, M.praline, onTop(220, 0, 0.7, 0.03, 0.02, 0.045)));
+        g.add(batch(sphere, M.gold, topRos.map(a => mtx(Math.sin(a) * (R - 0.15), Hh + 0.165, Math.cos(a) * (R - 0.15), 0.028, 0.028, 0.028))));
+        return g;
+      })(),
+      pineapple: (() => {
+        const g = new THREE.Group();
+        const ringGeo = new THREE.LatheGeometry([[0.05, -0.02], [0.17, -0.02], [0.17, 0.02], [0.05, 0.02], [0.05, -0.02]].map(([r, y]) => new THREE.Vector2(r, y)), 40);
+        const pine = P(0xffffff, 0.25, 0.8, { map: pineTex });
+        for (let i = 0; i < 7; i++) {
+          const a = i / 7 * TAU, m = new THREE.Mesh(ringGeo, pine);
+          m.position.set(Math.sin(a) * 0.62, Hh + 0.09, Math.cos(a) * 0.62); m.rotation.set(0.9, a, 0); g.add(m);
+          const c = cherry(); c.scale.setScalar(0.8); c.position.set(Math.sin(a) * 0.62, Hh + 0.12, Math.cos(a) * 0.62); g.add(c);
+        }
+        const c = cherry(); c.position.set(0, Hh + 0.08, 0); g.add(c);
+        return g;
+      })(),
+      redvelvet: (() => {
+        const g = new THREE.Group();
+        g.add(batch(lump, M.crumb, onSide(1100, 0.02, 0.38, 0.016, 0.035)));
+        g.add(batch(lump, M.crumb, Array.from({ length: 420 }, () => { const a = rnd() * TAU, r = 0.35 + Math.sqrt(rnd()) * 0.42, s = 0.015 + rnd() * 0.025; return mtx(Math.sin(a) * r, Hh + 0.015, Math.cos(a) * r, s, s * 0.7, s, rnd() * TAU, rnd(), rnd()); })));
+        const heart = new THREE.Shape(); heart.moveTo(0, -0.12); heart.bezierCurveTo(-0.22, 0.02, -0.12, 0.17, 0, 0.07); heart.bezierCurveTo(0.12, 0.17, 0.22, 0.02, 0, -0.12);
+        const h = new THREE.Mesh(new THREE.ExtrudeGeometry(heart, { depth: 0.04, bevelEnabled: true, bevelThickness: 0.015, bevelSize: 0.015, bevelSegments: 3 }), M.cherry);
+        h.rotation.x = -Math.PI / 2 + 0.25; h.position.set(0, Hh + 0.07, 0.05); h.scale.setScalar(1.2); g.add(h);
+        return g;
+      })(),
+      fruit: (() => {
+        const g = new THREE.Group();
+        const kiwi = new THREE.CylinderGeometry(0.15, 0.15, 0.03, 40);
+        const kiwiMats = [P(0x6b4a2a, 0.8), P(0xffffff, 0.3, 0.6, { map: kiwiTop }), P(0xffffff, 0.3, 0.6, { map: kiwiTop })];
+        const strawGeo = new THREE.LatheGeometry([[0, -0.11], [0.04, -0.09], [0.075, -0.03], [0.085, 0.03], [0.07, 0.08], [0, 0.1]].map(([r, y]) => new THREE.Vector2(r, y)), 24);
+        const strawM = P(0xffffff, 0.25, 0.7, { map: strawTex, bumpMap: strawTex, bumpScale: 0.004 });
+        const leaf = new THREE.ConeGeometry(0.03, 0.08, 4);
+        for (let i = 0; i < 6; i++) {
+          const a = i / 6 * TAU;
+          const k = new THREE.Mesh(kiwi, kiwiMats); k.position.set(Math.sin(a) * 0.68, Hh + 0.08, Math.cos(a) * 0.68); k.rotation.set(1.05, a, 0); g.add(k);
+          const sb = new THREE.Group(); const body = new THREE.Mesh(strawGeo, strawM); sb.add(body);
+          for (let j = 0; j < 5; j++) { const l = new THREE.Mesh(leaf, M.stem); const b = j / 5 * TAU; l.position.set(Math.sin(b) * 0.035, 0.1, Math.cos(b) * 0.035); l.rotation.set(Math.cos(b) * 1.3, 0, -Math.sin(b) * 1.3); sb.add(l); }
+          sb.position.set(Math.sin(a + 0.52) * 0.42, Hh + 0.1, Math.cos(a + 0.52) * 0.42); sb.rotation.set(0.3, a, 0.2); g.add(sb);
+        }
+        g.add(batch(sphere, M.blueberry, Array.from({ length: 16 }, () => { const a = rnd() * TAU, r = rnd() * 0.3; return mtx(Math.sin(a) * r, Hh + 0.05 + rnd() * 0.04, Math.cos(a) * r, 0.05, 0.046, 0.05); })));
+        const seg = new THREE.CylinderGeometry(0.13, 0.13, 0.05, 16, 1, false, 0, 1.0);
+        const orange = P(0xffffff, 0.3, 0.6, { map: orangeTex });
+        for (let i = 0; i < 4; i++) { const a = i / 4 * TAU + 0.3, o = new THREE.Mesh(seg, orange); o.position.set(Math.sin(a) * 0.18, Hh + 0.1, Math.cos(a) * 0.18); o.rotation.set(1.3, a, 0); g.add(o); }
+        return g;
+      })(),
+      choc: (() => {
+        const g = new THREE.Group();
+        g.add(drips(M.ganache, 38, 0.15, 0.5));
+        for (let i = 0; i < 7; i++) {
+          const sh = new THREE.Shape(); const n = 5 + (i % 2), pts = Array.from({ length: n }, (_, k) => { const a = k / n * TAU + rnd() * 0.5, r = 0.14 + rnd() * 0.12; return [Math.cos(a) * r, Math.sin(a) * r * 1.4]; });
+          sh.moveTo(...pts[0]); pts.slice(1).forEach(p => sh.lineTo(...p));
+          const m = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 0.012, bevelEnabled: true, bevelThickness: 0.004, bevelSize: 0.004, bevelSegments: 2 }), i % 3 ? M.darkChoc : M.milkChoc);
+          const a = i / 7 * TAU; m.position.set(Math.sin(a) * 0.22, Hh + 0.2, Math.cos(a) * 0.22); m.rotation.set(-0.3 + rnd() * 0.3, a + 1.4, (rnd() - 0.5) * 0.5); g.add(m);
+        }
+        g.add(batch(sphere, M.cocoa, Array.from({ length: 9 }, (_, i) => { const a = i / 9 * TAU + 0.2; return mtx(Math.sin(a) * 0.72, Hh + 0.07, Math.cos(a) * 0.72, 0.075, 0.072, 0.075, rnd() * 3); })));
+        for (let i = 0; i < 6; i++) {
+          const leaf = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 0.09, 3, 3), M.goldLeaf);
+          const lp = leaf.geometry.attributes.position; for (let v = 0; v < lp.count; v++) lp.setZ(v, (rnd() - 0.5) * 0.02); leaf.geometry.computeVertexNormals();
+          const a = rnd() * TAU, r = 0.3 + rnd() * 0.5; leaf.position.set(Math.sin(a) * r, Hh + 0.03, Math.cos(a) * r); leaf.rotation.set(-Math.PI / 2 + (rnd() - 0.5) * 0.4, 0, rnd() * TAU); g.add(leaf);
+        }
+        g.add(batch(sphere, M.gold, topRos.map(a => mtx(Math.sin(a) * (R - 0.15), Hh + 0.165, Math.cos(a) * (R - 0.15), 0.026, 0.026, 0.026))));
+        return g;
+      })()
     };
-    Object.values(decos).forEach(list => list.forEach(m => { m.visible = false; m.scale.setScalar(0.001); cake.add(m); }));
-    shadowsOn(cake);
-    holder.add(contact(5.5, -0.05));
+    Object.values(decos).forEach(g => { g.visible = false; g.scale.setScalar(0.001); cake.add(g); });
+    shadowsOn(cake); ao.castShadow = ao.receiveShadow = false;
+    holder.add(contact(5.5, -0.04));
     holder.position.y = -0.4;
-    const cur = { frost: col(FLAV[0].frost), side: col(FLAV[0].side) };
-    frostTop.color.copy(cur.frost); frostSide.color.copy(cur.side);
+    const f0 = FLAV[0];
+    frost.color.copy(col(f0.frost)); rosM.color.copy(col(f0.ros));
     let active = 0;
     const state = { set(i) { active = i; } };
     const layout = () => fit(renderer, camera, canvas);
     layout(); addEventListener('resize', layout);
     loop(canvas, (t, dt) => {
       const f = FLAV[active], k = damp(0.1, dt);
-      frostTop.color.lerp(col(f.frost), k); frostSide.color.lerp(col(f.side), k);
-      Object.entries(decos).forEach(([name, list]) => list.forEach(m => {
-        const want = name === f.deco ? 1 : 0.001;
-        const s = m.scale.x + (want - m.scale.x) * damp(0.14, dt);
-        m.scale.setScalar(s); m.visible = s > 0.01;
-      }));
-      holder.rotation.y = t * 0.25 + mx * 0.2;
-      camera.position.set(0, 3.3, 7.6); camera.lookAt(0, 0.3, 0);
+      frost.color.lerp(col(f.frost), k); rosM.color.lerp(col(f.ros), k);
+      frost.roughness = lerp(frost.roughness, f.rough, k); rosM.roughness = frost.roughness;
+      frost.clearcoat = lerp(frost.clearcoat, f.coat, k); rosM.clearcoat = frost.clearcoat;
+      Object.entries(decos).forEach(([name, g]) => {
+        const want = name === f.deco ? 1 : 0.001, s = g.scale.x + (want - g.scale.x) * damp(0.14, dt);
+        g.scale.set(s, s, s); g.visible = s > 0.01;
+      });
+      holder.rotation.y = t * 0.22 + mx * 0.2;
+      camera.position.set(0, 3.1, 7.4); camera.lookAt(0, 0.35, 0);
       renderer.render(scene, camera);
     });
     return state;
