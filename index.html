@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mom's Oven, Vadapalani</title>
+<meta name="description" content="100% eggless custom cakes baked at home in Vadapalani, Chennai. Bento cakes, tier cakes and themed birthday cakes. Order on WhatsApp.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#FFF8F1; --blush:#F4DCD6; --blush2:#EFCFC8; --plum:#4A1730; --plum2:#6E2A4A; --rose:#B85C72;
+  --text2:#7A5E66; --line:rgba(74,23,48,.13); --line-d:rgba(255,248,241,.16);
+  --gut:clamp(16px,5vw,72px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+body{background:var(--cream);color:var(--plum);font-family:'DM Sans',system-ui,sans-serif;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+svg,canvas{display:block}
+button,input{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--rose);outline-offset:3px;border-radius:6px}
+.serif{font-family:'DM Serif Display',Georgia,serif;font-weight:400;letter-spacing:-.015em;line-height:1}
+.serif em{font-style:italic;color:var(--rose)}
+.eyebrow{font-size:.76rem;letter-spacing:.2em;text-transform:uppercase;color:var(--rose);font-weight:600}
+.line{display:block;overflow:hidden;padding-bottom:.1em}
+.line>span{display:block}
+.wm{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.12em;margin-bottom:-.12em}
+.wm>span{display:inline-block}
+
+.btn{display:inline-flex;align-items:center;gap:.6em;background:var(--plum);color:var(--cream);font-weight:600;text-decoration:none;padding:1em 1.55em;border-radius:999px;font-size:1rem;will-change:transform}
+.btn svg{width:20px;height:20px}
+.btn-light{background:var(--cream);color:var(--plum)}
+.btn-sm{padding:.65em 1.1em;font-size:.88rem}
+.link{text-decoration:none;border-bottom:1px solid var(--rose);padding-bottom:2px;font-weight:500}
+
+/* intro: the oven light comes on and grows */
+.intro{position:fixed;inset:0;z-index:100;pointer-events:none;background:var(--plum);display:grid;place-items:center;color:var(--cream)}
+.intro .glow{position:absolute;left:50%;top:50%;width:46vmax;height:46vmax;margin:-23vmax 0 0 -23vmax;border-radius:50%;background:radial-gradient(circle,#ffd9b8 0,#f4a77f 30%,rgba(244,167,127,0) 70%);opacity:0;transform:scale(.4)}
+.intro-txt{position:relative;text-align:center}
+.intro-txt .serif{font-size:clamp(2.6rem,7vw,5.6rem)}
+.intro-txt .ch{display:inline-block}
+.intro-txt small{display:block;margin-top:14px;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;opacity:.7}
+
+/* nav */
+.progress{position:fixed;top:0;left:0;right:0;height:2px;z-index:60;background:var(--rose);transform:scaleX(0);transform-origin:left}
+.nav{position:fixed;top:14px;left:var(--gut);right:var(--gut);z-index:50;display:flex;justify-content:space-between;align-items:center;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.nav.hide{transform:translateY(-140%)}
+.brand{text-decoration:none;font-family:'DM Serif Display',serif;font-size:1.2rem;padding:.4em 1em;border-radius:999px;background:rgba(255,248,241,.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.brand em{color:var(--rose)}
+
+/* hero: a bento cake box that opens */
+.hero{position:relative;height:100svh;overflow:hidden;background:radial-gradient(45% 55% at 70% 50%,#fff,transparent 70%),var(--cream)}
+#bento{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y}
+.hero-copy{position:absolute;left:var(--gut);bottom:clamp(40px,10vh,110px);z-index:2;max-width:820px;pointer-events:none}
+.hero-copy a{pointer-events:auto}
+.hero-copy .eyebrow{display:block;margin-bottom:1.3rem}
+.hero-title{font-size:clamp(2.8rem,5.6vw,5.6rem)}
+.hero-sub{max-width:38ch;color:var(--text2);font-size:clamp(1rem,1.25vw,1.15rem);margin:1.5rem 0 2rem}
+.hero-cta{display:flex;flex-wrap:wrap;gap:16px 26px;align-items:center}
+.write{position:absolute;right:clamp(40px,10vw,200px);top:32%;z-index:3;width:min(360px,80vw);opacity:0;pointer-events:none}
+.write.live{pointer-events:auto}
+.write h2{font-size:clamp(2rem,3vw,3rem);margin-bottom:12px}
+.write p{color:var(--text2);margin-bottom:16px}
+.write input{width:100%;padding:.9em 1.1em;border-radius:16px;border:1px solid var(--line);background:#fff;font-size:1.05rem}
+.write .btn{margin-top:14px}
+.hint{position:absolute;right:var(--gut);bottom:clamp(40px,10vh,110px);z-index:2;color:var(--text2);font-size:.85rem;display:flex;gap:10px;align-items:center}
+.hint i{width:34px;height:1px;background:var(--line);display:block;position:relative;overflow:hidden}
+.hint i::after{content:'';position:absolute;inset:0;background:var(--rose);animation:swipe 2.2s ease-in-out infinite}
+@keyframes swipe{0%{transform:translateX(-100%)}60%,100%{transform:translateX(100%)}}
+
+/* badges strip */
+.badges{background:var(--plum);color:var(--cream);overflow:hidden;padding:22px 0;white-space:nowrap}
+.badges-in{display:inline-flex;gap:0;will-change:transform}
+.badges span{display:inline-flex;align-items:center;gap:22px;padding-right:22px;font-family:'DM Serif Display',serif;font-size:clamp(1.4rem,2.6vw,2.2rem)}
+.badges span i{width:8px;height:8px;border-radius:50%;background:var(--rose);display:block}
+
+/* flavours: sticky cake that changes as you scroll */
+.flavours{display:grid;grid-template-columns:1.1fr 1fr;position:relative}
+.f-stage{position:sticky;top:0;height:100svh}
+#flav{position:absolute;inset:0;width:100%;height:100%}
+.f-name{position:absolute;left:var(--gut);bottom:7vh;font-family:'DM Serif Display',serif;font-size:clamp(1rem,1.3vw,1.2rem);color:var(--text2)}
+.f-list{padding:20vh var(--gut) 20vh 0}
+.f-head{margin-bottom:12vh}
+.f-head h2{font-size:clamp(2.6rem,5vw,4.8rem)}
+.f-head p{color:var(--text2);max-width:36ch;margin-top:16px}
+.f-item{min-height:62vh;display:flex;flex-direction:column;justify-content:center;opacity:.25;transition:opacity .6s}
+.f-item.on{opacity:1}
+.f-item b{font-size:.85rem;letter-spacing:.14em;color:var(--rose);font-weight:600}
+.f-item h3{font-family:'DM Serif Display',serif;font-weight:400;font-size:clamp(2.2rem,4vw,3.6rem);line-height:1;margin:.25em 0 .35em}
+.f-item p{color:var(--text2);max-width:36ch;font-size:1.05rem}
+
+/* kinds of cakes */
+.kinds{padding:clamp(100px,18vh,200px) var(--gut);background:var(--blush)}
+.kinds h2{font-size:clamp(2.6rem,6vw,5.4rem);max-width:14ch;margin-bottom:8vh}
+.k-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.k-card{background:var(--cream);border-radius:28px;padding:28px;min-height:340px;display:flex;flex-direction:column;justify-content:space-between}
+.k-card svg{width:80px;height:80px;fill:none;stroke:var(--rose);stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+.k-card h3{font-family:'DM Serif Display',serif;font-weight:400;font-size:1.9rem;line-height:1;margin-bottom:.35em}
+.k-card p{color:var(--text2)}
+
+/* how to order */
+.order-how{padding:clamp(100px,18vh,200px) var(--gut);display:grid;grid-template-columns:1fr 1.3fr;gap:clamp(30px,6vw,90px)}
+.order-how h2{font-size:clamp(2.4rem,5vw,4.4rem);position:sticky;top:20vh;align-self:start}
+.steps{display:grid;gap:14px;counter-reset:s}
+.step{display:grid;grid-template-columns:72px 1fr;gap:20px;align-items:start;padding:28px;border-radius:24px;border:1px solid var(--line)}
+.step .num{width:56px;height:56px;border-radius:50%;background:var(--blush);display:grid;place-items:center;font-family:'DM Serif Display',serif;font-size:1.5rem}
+.step h3{font-family:'DM Serif Display',serif;font-weight:400;font-size:1.7rem;line-height:1.1;margin-bottom:.3em}
+.step p{color:var(--text2)}
+
+/* contact */
+.contact{background:var(--plum);color:var(--cream);padding:clamp(110px,20vh,220px) var(--gut) clamp(60px,10vh,100px);text-align:center;border-radius:48px 48px 0 0;position:relative}
+.contact h2{font-size:clamp(3rem,9vw,8.4rem)}
+.contact h2 .ch{display:inline-block}
+.contact>p{color:rgba(255,248,241,.72);max-width:44ch;margin:1.5rem auto 2.2rem;font-size:clamp(1rem,1.3vw,1.15rem)}
+.c-actions{display:flex;flex-wrap:wrap;gap:16px 28px;justify-content:center;align-items:center}
+.info{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:10vh;text-align:left;border-top:1px solid var(--line-d);padding-top:28px}
+.info span{display:block;font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:#E9A7B5;margin-bottom:6px;font-weight:600}
+.info div{font-size:.95rem;color:rgba(255,248,241,.85)}
+footer{background:var(--plum);color:rgba(255,248,241,.55);padding:26px var(--gut) 90px;font-size:.85rem;display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-between;border-top:1px solid var(--line-d)}
+
+.pill{position:fixed;left:var(--gut);bottom:16px;z-index:70;display:flex;gap:10px;align-items:center;max-width:min(560px,calc(100vw - 32px));
+  background:var(--plum);color:var(--cream);font-size:.82rem;line-height:1.35;padding:.6em .6em .6em 1em;border-radius:16px;box-shadow:0 10px 30px rgba(74,23,48,.25)}
+.pill button{width:28px;height:28px;border-radius:50%;background:var(--cream);color:var(--plum);flex:none}
+
+@media (max-width:860px){
+  .write{left:var(--gut);right:var(--gut);top:auto;bottom:6vh;width:auto}
+  .hint{display:none}
+  .flavours{grid-template-columns:1fr}
+  .f-stage{height:46svh;z-index:2;background:var(--cream)}
+  .f-list{padding:6vh var(--gut) 10vh}
+  .f-head{margin-bottom:4vh}
+  .f-item{min-height:44vh}
+  .k-grid{grid-template-columns:1fr 1fr}
+  .k-card{min-height:240px}
+  .order-how{grid-template-columns:1fr}
+  .order-how h2{position:static}
+  .info{grid-template-columns:1fr}
+}
+@media (max-width:520px){ .k-grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<div class="intro" id="intro" aria-hidden="true">
+  <div class="glow"></div>
+  <div class="intro-txt"><div class="serif" id="introBrand">Mom's <em>Oven</em></div><small>Baked at home &middot; Vadapalani</small></div>
+</div>
+
+<div class="progress" id="progress"></div>
+
+<header class="nav" id="nav">
+  <a class="brand" href="#top">Mom's <em>Oven</em></a>
+  <a class="btn btn-sm magnetic" href="https://wa.me/919940043417?text=Hi%2C%20I%27d%20like%20to%20order%20a%20cake%20from%20Mom%27s%20Oven." target="_blank" rel="noopener">Order a cake</a>
+</header>
+
+<main>
+<!-- HERO: a 3D bento cake box opens as you scroll; type a name to write it on the cake -->
+<section class="hero" id="top">
+  <canvas id="bento" aria-label="A bento cake box that opens to show a small cake"></canvas>
+  <div class="hero-copy">
+    <span class="eyebrow">Home bakery &middot; Vadapalani</span>
+    <h1 class="serif hero-title">
+      <span class="line"><span>Baked at home,</span></span>
+      <span class="line"><span><em>made for your day</em></span></span>
+    </h1>
+    <p class="hero-sub">100% eggless custom cakes, from little bento cakes to tiered birthday cakes, baked to order in Vadapalani.</p>
+    <div class="hero-cta">
+      <a class="btn magnetic" href="https://wa.me/919940043417?text=Hi%2C%20I%27d%20like%20to%20order%20a%20cake%20from%20Mom%27s%20Oven." target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-3.3-.8-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>
+        Order on WhatsApp
+      </a>
+      <a class="link" href="tel:+919940043417">Call +91 99400 43417</a>
+    </div>
+  </div>
+  <div class="write" id="write">
+    <h2 class="serif">Write a name <em>on it</em></h2>
+    <p>Type a name and see it piped on your bento cake.</p>
+    <input id="nameIn" maxlength="14" placeholder="Ananya" aria-label="Name to write on the cake">
+    <a class="btn magnetic" id="bentoOrder" href="#" target="_blank" rel="noopener">Order this bento cake</a>
+  </div>
+  <p class="hint" aria-hidden="true"><i></i>Scroll to open the box</p>
+</section>
+
+<div class="badges" aria-label="100% eggless, FSSAI certified, custom themes, bento cakes, tier cakes, piñata cakes"><div class="badges-in" id="badges"></div></div>
+
+<!-- FLAVOURS: the cake on the left changes as you scroll through the list -->
+<section class="flavours" id="flavours">
+  <div class="f-stage"><canvas id="flav" aria-label="3D cake showing the flavour you are reading about"></canvas><span class="f-name" id="fName">Black Forest</span></div>
+  <div class="f-list">
+    <div class="f-head"><span class="eyebrow">Our flavours</span><h2 class="serif" data-split>Pick a <em>flavour</em></h2><p>Scroll through the flavours and watch the cake change. Every cake is eggless.</p></div>
+    <div class="f-item on" data-f="0"><b>01</b><h3>Black Forest</h3><p>Chocolate sponge, whipped cream and cherries, finished with chocolate shavings.</p></div>
+    <div class="f-item" data-f="1"><b>02</b><h3>Butterscotch</h3><p>Soft vanilla sponge with butterscotch cream and crunchy praline bits.</p></div>
+    <div class="f-item" data-f="2"><b>03</b><h3>Pineapple</h3><p>Light sponge soaked in pineapple syrup, layered with fresh cream and fruit.</p></div>
+    <div class="f-item" data-f="3"><b>04</b><h3>Red Velvet</h3><p>Deep red sponge with smooth cream cheese frosting and a crumb finish.</p></div>
+    <div class="f-item" data-f="4"><b>05</b><h3>Fresh Fruit</h3><p>Vanilla sponge and fresh cream, topped with seasonal fruit.</p></div>
+    <div class="f-item" data-f="5"><b>06</b><h3>Chocolate Overload</h3><p>Chocolate sponge, chocolate ganache and more chocolate on top.</p></div>
+  </div>
+</section>
+
+<!-- KINDS: cards wipe in one after another -->
+<section class="kinds" id="kinds">
+  <h2 class="serif" data-split>A cake for every <em>kind</em> of party</h2>
+  <div class="k-grid">
+    <article class="k-card"><svg viewBox="0 0 80 80"><rect x="14" y="30" width="52" height="36" rx="4"/><path d="M14 30l8-12h36l8 12M24 44h32M30 52h20"/></svg><div><h3>Bento cakes</h3><p>Little cakes in a box, with a name or a short message on top. Perfect for one or two.</p></div></article>
+    <article class="k-card"><svg viewBox="0 0 80 80"><path d="M14 68h52M18 68V52h44v16M24 52V38h32v14M30 38V26h20v12M40 26v-8"/></svg><div><h3>Tier cakes</h3><p>Two or three tiers for big birthdays, anniversaries and family functions.</p></div></article>
+    <article class="k-card"><svg viewBox="0 0 80 80"><circle cx="40" cy="44" r="24"/><path d="M26 30l28 28M54 30L26 58M40 12v8"/><path d="M34 12h12"/></svg><div><h3>Piñata cakes</h3><p>A chocolate shell you break with a little hammer to find the treats inside.</p></div></article>
+    <article class="k-card"><svg viewBox="0 0 80 80"><path d="M20 62c4-16 12-28 20-28s16 12 20 28"/><circle cx="32" cy="28" r="5"/><circle cx="48" cy="28" r="5"/><path d="M14 62h52"/></svg><div><h3>Themed cakes</h3><p>Jungle, cartoon, sports or anything your child loves, made to their idea.</p></div></article>
+  </div>
+</section>
+
+<!-- HOW TO ORDER -->
+<section class="order-how" id="how">
+  <h2 class="serif" data-split>Ordering is <em>easy</em></h2>
+  <div class="steps">
+    <div class="step"><span class="num">1</span><div><h3>Call or WhatsApp us</h3><p>Tell us the date, the flavour and how many people the cake is for.</p></div></div>
+    <div class="step"><span class="num">2</span><div><h3>Share your idea</h3><p>Send a photo, a theme or just a colour, and we'll plan the design with you.</p></div></div>
+    <div class="step"><span class="num">3</span><div><h3>We bake it fresh</h3><p>Your cake is baked at home for your date, never kept on a shelf.</p></div></div>
+    <div class="step"><span class="num">4</span><div><h3>Pick it up</h3><p>Collect your cake from Sarvamangala Colony, Vadapalani.</p></div></div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <h2 class="serif" id="cTitle">Let's bake your cake</h2>
+  <p>Message us with your date and idea. We'll reply with designs and a price.</p>
+  <div class="c-actions">
+    <a class="btn btn-light magnetic" href="https://wa.me/919940043417?text=Hi%2C%20I%27d%20like%20to%20order%20a%20cake%20from%20Mom%27s%20Oven." target="_blank" rel="noopener">Order on WhatsApp</a>
+    <a class="link" href="tel:+919940043417">Call +91 99400 43417</a>
+  </div>
+  <div class="info">
+    <div><span>Find us</span>Sarvamangala Colony, Aruna Colony, Vadapalani, Chennai</div>
+    <div><span>Open</span>Monday to Saturday, 8 AM to 8 PM</div>
+    <div><span>Directions</span><a class="link" href="https://www.google.com/maps/search/?api=1&query=Mom%27s+Oven+Sarvamangala+Colony+Vadapalani+Chennai" target="_blank" rel="noopener">Open in Google Maps</a></div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <span>Mom's Oven, Vadapalani, Chennai &middot; FSSAI certified home bakery</span>
+  <span>Concept website prepared by Sujith. Flavours, hours and details are placeholders until confirmed.</span>
+</footer>
+
+<div class="pill" id="pill"><span>Concept preview. Flavours and hours are placeholders.</span><button id="pillClose" aria-label="Dismiss">✕</button></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+(() => {
+  // The motion is the point of this site, so it runs even when the OS asks for reduced motion.
+  const fine = matchMedia('(pointer: fine)').matches;
+  const motion = !!(window.gsap && window.ScrollTrigger);
+  if (motion) gsap.registerPlugin(ScrollTrigger);
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const ease = v => v * v * (3 - 2 * v);
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const damp = (n, dt) => 1 - Math.pow(1 - n, dt * 60);
+  const WA = 'https://wa.me/919940043417?text=';
+  const TAU = Math.PI * 2;
+
+  document.getElementById('pillClose').addEventListener('click', () => document.getElementById('pill').remove());
+
+  /* ---------- smooth scroll ---------- */
+  let lenis = null;
+  if (motion && window.Lenis) {
+    lenis = new Lenis({ lerp: 0.1, wheelMultiplier: 0.9 });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(t => lenis.raf(t * 1000));
+    gsap.ticker.lagSmoothing(0);
+  }
+  const scrollToY = y => lenis ? lenis.scrollTo(y, { duration: 1.4 }) : scrollTo({ top: y, behavior: 'smooth' });
+  document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', e => {
+    const t = document.querySelector(a.getAttribute('href'));
+    if (!t) return;
+    e.preventDefault();
+    scrollToY(t.getBoundingClientRect().top + scrollY);
+  }));
+  let mx = 0, my = 0;
+  addEventListener('pointermove', e => { mx = e.clientX / innerWidth - 0.5; my = e.clientY / innerHeight - 0.5; });
+
+  /* ---------- three.js helpers ---------- */
+  function loop(canvas, frame) {
+    let on = false, last = 0;
+    const tick = t => { if (!on) return; requestAnimationFrame(tick); const dt = Math.min(0.1, last ? (t - last) / 1000 : 0.016); last = t; frame(t / 1000, dt); };
+    new IntersectionObserver(([en]) => { const was = on; on = en.isIntersecting; if (on && !was) { last = 0; requestAnimationFrame(tick); } }).observe(canvas);
+  }
+  function makeRenderer(canvas) {
+    let r;
+    try { r = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' }); } catch (e) { return null; }
+    r.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+    r.outputEncoding = THREE.sRGBEncoding;
+    r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = 1.05;
+    r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
+    return r;
+  }
+  function fit(renderer, camera, canvas) {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h; camera.updateProjectionMatrix();
+    return w / h;
+  }
+  // three r128 treats hex colours as linear light, so convert from the sRGB values we design with
+  const col = hex => new THREE.Color(hex).convertSRGBToLinear();
+  function studio(renderer, scene, span = 3) {
+    const pm = new THREE.PMREMGenerator(renderer), room = new THREE.Scene();
+    room.add(new THREE.Mesh(new THREE.BoxGeometry(30, 30, 30), new THREE.MeshBasicMaterial({ color: 0x1e1517, side: THREE.BackSide })));
+    const box = (w, h, x, y, z, k) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(k, k * 0.95, k * 0.92), side: THREE.DoubleSide })); m.position.set(x, y, z); m.lookAt(0, 0, 0); room.add(m); };
+    box(12, 6, 0, 13, 2, 3.6); box(6, 10, -12, 3, 6, 2.6); box(5, 9, 12, 2, -4, 1.6); box(3, 8, 9, 1, 10, 1.4);
+    scene.environment = pm.fromScene(room, 0.03).texture; pm.dispose();
+    scene.add(new THREE.HemisphereLight(0xfff6ef, 0x9a7f84, 0.55));
+    const key = new THREE.DirectionalLight(0xfff1e6, 1.5); key.position.set(4, 9, 6);
+    key.castShadow = true; key.shadow.mapSize.set(1024, 1024); key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02; key.shadow.radius = 4;
+    Object.assign(key.shadow.camera, { left: -span, right: span, top: span, bottom: -span, near: 1, far: 30 });
+    scene.add(key);
+    const rim = new THREE.DirectionalLight(0xffe1e6, 0.6); rim.position.set(-6, 4, -6); scene.add(rim);
+    return key;
+  }
+  function canvasTex(draw, size = 256, repeat = [1, 1], srgb = true) {
+    const c = document.createElement('canvas'); c.width = c.height = size;
+    draw(c.getContext('2d'), size, c);
+    const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(...repeat); t.anisotropy = 4;
+    if (srgb) t.encoding = THREE.sRGBEncoding;
+    return t;
+  }
+  const noiseTex = (hex, n, a, rep) => canvasTex((x, s) => {
+    x.fillStyle = hex; x.fillRect(0, 0, s, s);
+    for (let i = 0; i < n; i++) { x.fillStyle = `rgba(${Math.random() < 0.5 ? '60,40,30' : '255,255,255'},${Math.random() * a})`; const r = Math.random() * 1.6 + 0.4; x.fillRect(Math.random() * s, Math.random() * s, r, r); }
+  }, 256, rep);
+  const shadowsOn = o => o.traverse(n => { if (n.isMesh) { n.castShadow = true; n.receiveShadow = true; } });
+  const contact = (size, y) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(size, size), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false,
+      map: canvasTex((x, s) => { const g = x.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2); g.addColorStop(0, 'rgba(74,23,48,.38)'); g.addColorStop(0.5, 'rgba(74,23,48,.12)'); g.addColorStop(1, 'rgba(74,23,48,0)'); x.fillStyle = g; x.fillRect(0, 0, s, s); }, 256, [1, 1], false) }));
+    m.rotation.x = -Math.PI / 2; m.position.y = y; return m;
+  };
+  // piped shell / star rosette: a ridged swirl that tapers to a point
+  const rosetteGeo = (() => {
+    const S = 48, H = 22, pos = [], idx = [];
+    for (let i = 0; i <= H; i++) {
+      const h = i / H, rad = 0.5 * Math.pow(1 - h, 0.75) * (h < 0.12 ? 0.86 + h : 1);
+      for (let j = 0; j <= S; j++) { const th = j / S * TAU, r = rad * (1 + 0.17 * Math.cos(8 * th + h * 9)); pos.push(Math.sin(th) * r, h, Math.cos(th) * r); }
+    }
+    for (let i = 0; i < H; i++) for (let j = 0; j < S; j++) { const a = i * (S + 1) + j, b = a + S + 1; idx.push(a, b, a + 1, b, b + 1, a + 1); }
+    const g = new THREE.BufferGeometry(); g.setIndex(idx); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.computeVertexNormals(); return g;
+  })();
+  const mtx = (x, y, z, sx, sy, sz, ry = 0, rx = 0, rz = 0) => new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(rx, ry, rz)), new THREE.Vector3(sx, sy, sz));
+  function batch(geo, mat, list) { const m = new THREE.InstancedMesh(geo, mat, Math.max(1, list.length)); list.forEach((mm, i) => m.setMatrixAt(i, mm)); m.count = list.length; return m; }
+  // a ring of piped shells around a circle
+  const piping = (r, y, n, s, mat) => batch(rosetteGeo, mat, Array.from({ length: n }, (_, i) => { const a = i / n * TAU; return mtx(Math.sin(a) * r, y, Math.cos(a) * r, s, s * 0.9, s, a * 3); }));
+
+  /* ---------- hero: bento box ---------- */
+  function initBento() {
+    const canvas = document.getElementById('bento');
+    if (!window.THREE) return null;
+    const renderer = makeRenderer(canvas); if (!renderer) return null;
+    const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
+    const key = studio(renderer, scene, 3);
+    const holder = new THREE.Group(); scene.add(holder); key.target = holder;
+    // kraft paper box: a tray and a lid hinged at the back
+    const kraft = new THREE.MeshStandardMaterial({ map: noiseTex('#c9a27a', 6000, 0.12, [3, 3]), roughness: 0.9 });
+    const kraftIn = new THREE.MeshStandardMaterial({ map: noiseTex('#f2e6d6', 4000, 0.08, [3, 3]), roughness: 0.92 });
+    const W = 2.3, D = 2.3, H = 0.95, T = 0.03;
+    const box = new THREE.Group(); holder.add(box);
+    const wall = (w, h, d, x, y, z, m) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); box.add(b); return b; };
+    wall(W, T, D, 0, T / 2, 0, kraftIn);
+    wall(W, H, T, 0, H / 2, D / 2, kraft); wall(W, H, T, 0, H / 2, -D / 2, kraft);
+    wall(T, H, D, W / 2, H / 2, 0, kraft); wall(T, H, D, -W / 2, H / 2, 0, kraft);
+    // paper liner inside
+    const liner = new THREE.Mesh(new THREE.BoxGeometry(W - 0.12, 0.01, D - 0.12), kraftIn); liner.position.y = 0.04; box.add(liner);
+    // lid
+    const hinge = new THREE.Group(); hinge.position.set(0, H, -D / 2); box.add(hinge);
+    const lid = new THREE.Group(); lid.position.set(0, 0, D / 2); hinge.add(lid);
+    const lw = (w, h, d, x, y, z, m) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); lid.add(b); return b; };
+    lw(W + 0.04, T, D + 0.04, 0, T / 2, 0, kraft);
+    lw(W + 0.04, 0.18, T, 0, -0.07, (D + 0.04) / 2, kraft); lw(T, 0.18, D + 0.04, (W + 0.04) / 2, -0.07, 0, kraft); lw(T, 0.18, D + 0.04, -(W + 0.04) / 2, -0.07, 0, kraft);
+    // a printed seal on the lid
+    const seal = new THREE.Mesh(new THREE.CircleGeometry(0.42, 64), new THREE.MeshStandardMaterial({ roughness: 0.6, map: canvasTex((x, s) => {
+      x.fillStyle = '#4A1730'; x.beginPath(); x.arc(s / 2, s / 2, s / 2, 0, TAU); x.fill();
+      x.strokeStyle = '#E9A7B5'; x.lineWidth = 3; x.beginPath(); x.arc(s / 2, s / 2, s / 2 - 14, 0, TAU); x.stroke();
+      x.fillStyle = '#FFF8F1'; x.textAlign = 'center'; x.font = '44px "DM Serif Display", serif'; x.fillText("Mom's", s / 2, s / 2 - 4);
+      x.font = 'italic 44px "DM Serif Display", serif'; x.fillStyle = '#E9A7B5'; x.fillText('Oven', s / 2, s / 2 + 40);
+    }, 256) }));
+    seal.rotation.x = -Math.PI / 2; seal.position.y = T + 0.002; lid.add(seal);
+    // the bento cake
+    const frost = new THREE.MeshPhysicalMaterial({ color: col(0xf2c9cf), roughness: 0.45, clearcoat: 0.3, clearcoatRoughness: 0.4 });
+    const pipeM = new THREE.MeshPhysicalMaterial({ color: col(0xfbeee8), roughness: 0.5, clearcoat: 0.2 });
+    const cake = new THREE.Group(); cake.position.y = 0.05; box.add(cake);
+    const cr = 0.8, ch = 0.55;
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(cr, cr, ch, 96), frost); body.position.y = ch / 2; cake.add(body);
+    cake.add(piping(cr - 0.04, ch - 0.02, 34, 0.11, pipeM));
+    cake.add(piping(cr + 0.02, 0.0, 36, 0.1, pipeM));
+    // message on top, redrawn as you type
+    const topCanvas = document.createElement('canvas'); topCanvas.width = topCanvas.height = 512;
+    const topTex = new THREE.CanvasTexture(topCanvas); topTex.encoding = THREE.sRGBEncoding; topTex.anisotropy = 4;
+    const drawTop = name => {
+      const x = topCanvas.getContext('2d'), s = 512;
+      x.clearRect(0, 0, s, s); x.fillStyle = '#f2c9cf'; x.beginPath(); x.arc(s / 2, s / 2, s / 2, 0, TAU); x.fill();
+      x.fillStyle = '#4A1730'; x.textAlign = 'center'; x.textBaseline = 'middle';
+      x.font = 'italic 64px "DM Serif Display", serif'; x.fillText('Happy', s / 2, s / 2 - 70);
+      x.fillText('Birthday', s / 2, s / 2);
+      x.font = 'italic 76px "DM Serif Display", serif'; x.fillStyle = '#B85C72'; x.fillText(name || 'Ananya', s / 2, s / 2 + 84);
+      topTex.needsUpdate = true;
+    };
+    drawTop(''); if (document.fonts) document.fonts.ready.then(() => drawTop(state.name));
+    const top = new THREE.Mesh(new THREE.CircleGeometry(cr - 0.001, 96), new THREE.MeshPhysicalMaterial({ map: topTex, roughness: 0.45, clearcoat: 0.3 }));
+    top.rotation.x = -Math.PI / 2; top.position.y = ch + 0.001; cake.add(top);
+    // a few sprinkles and pearls
+    const pearl = new THREE.MeshStandardMaterial({ color: col(0xd9b26f), metalness: 1, roughness: 0.25 });
+    cake.add(batch(new THREE.SphereGeometry(1, 14, 10), pearl, Array.from({ length: 10 }, (_, i) => { const a = i / 10 * TAU + 0.15; return mtx(Math.sin(a) * (cr - 0.04), ch + 0.11, Math.cos(a) * (cr - 0.04), 0.025, 0.025, 0.025); })));
+    // a little wooden spoon beside the cake
+    const spoon = new THREE.Group();
+    const wood = new THREE.MeshStandardMaterial({ color: col(0xd8b78e), roughness: 0.7 });
+    const handle = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.012, 0.75), wood); spoon.add(handle);
+    const bowl = new THREE.Mesh(new THREE.SphereGeometry(0.1, 20, 12), wood); bowl.scale.set(1, 0.25, 1.35); bowl.position.z = 0.45; spoon.add(bowl);
+    spoon.position.set(0.95, 0.06, 0.2); spoon.rotation.y = 0.3; box.add(spoon);
+    shadowsOn(box);
+    box.position.y = -0.5;
+    holder.add(contact(5, -0.5));
+    let mobile = false;
+    const layout = () => { mobile = fit(renderer, camera, canvas) < 1; };
+    layout(); addEventListener('resize', layout);
+    const state = { target: 0, p: 0, pop: box, name: '', setName: n => { state.name = n; drawTop(n); } };
+    loop(canvas, (t, dt) => {
+      state.p += (state.target - state.p) * damp(0.12, dt);
+      const o = ease(clamp(state.p / 0.55));
+      hinge.rotation.x = -o * 1.95;
+      holder.rotation.y = lerp(-0.55 + Math.sin(t * 0.4) * 0.05, -0.15, o) + mx * 0.08;
+      holder.position.set(mobile ? 0 : lerp(2.2, -1.9, o), 0, 0);
+      camera.position.set(mx * 0.2, lerp(mobile ? 3.4 : 3.2, mobile ? 5.6 : 4.8, o), mobile ? 16.5 : lerp(9.5, 10, o));
+      camera.lookAt(0, mobile ? -2.0 : lerp(0.1, 0.35, o), 0);
+      renderer.render(scene, camera);
+    });
+    return state;
+  }
+  const bento = initBento();
+
+  /* ---------- flavour cake ---------- */
+  const FLAV = [
+    { name: 'Black Forest', frost: 0xf6efe8, side: 0x3b2018, deco: 'blackforest' },
+    { name: 'Butterscotch', frost: 0xeccb93, side: 0xeccb93, deco: 'butterscotch' },
+    { name: 'Pineapple', frost: 0xfbf1d8, side: 0xfbf1d8, deco: 'pineapple' },
+    { name: 'Red Velvet', frost: 0xf8f2ea, side: 0xf8f2ea, deco: 'redvelvet' },
+    { name: 'Fresh Fruit', frost: 0xfaf4ec, side: 0xfaf4ec, deco: 'fruit' },
+    { name: 'Chocolate Overload', frost: 0x2a140d, side: 0x2a140d, deco: 'choc' }
+  ];
+  function initFlav() {
+    const canvas = document.getElementById('flav');
+    if (!window.THREE) return null;
+    const renderer = makeRenderer(canvas); if (!renderer) return null;
+    const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
+    const key = studio(renderer, scene, 3);
+    const holder = new THREE.Group(); scene.add(holder); key.target = holder;
+    const frostTop = new THREE.MeshPhysicalMaterial({ roughness: 0.42, clearcoat: 0.4, clearcoatRoughness: 0.3 });
+    const frostSide = new THREE.MeshPhysicalMaterial({ roughness: 0.42, clearcoat: 0.4, clearcoatRoughness: 0.3, bumpMap: noiseTex('#888', 7000, 0.4, [6, 2]), bumpScale: 0.006 });
+    const R = 1.25, Hh = 0.95;
+    const cake = new THREE.Group(); holder.add(cake);
+    const side = new THREE.Mesh(new THREE.CylinderGeometry(R, R, Hh, 110, 1, true), frostSide); side.position.y = Hh / 2; cake.add(side);
+    const topD = new THREE.Mesh(new THREE.CircleGeometry(R, 110), frostTop); topD.rotation.x = -Math.PI / 2; topD.position.y = Hh; cake.add(topD);
+    const pipeTop = piping(R - 0.08, Hh - 0.01, 26, 0.17, frostTop); cake.add(pipeTop);
+    const pipeBase = piping(R + 0.03, 0, 40, 0.12, frostTop); cake.add(pipeBase);
+    const board = new THREE.Mesh(new THREE.CylinderGeometry(1.65, 1.65, 0.05, 96), new THREE.MeshStandardMaterial({ color: col(0xd8b06c), metalness: 0.9, roughness: 0.3 })); board.position.y = -0.03; cake.add(board);
+    // decorations per flavour
+    const M = {
+      cherry: new THREE.MeshPhysicalMaterial({ color: col(0x8e1222), roughness: 0.15, clearcoat: 1 }),
+      choc: new THREE.MeshPhysicalMaterial({ color: col(0x2a140d), roughness: 0.25, clearcoat: 0.8 }),
+      gold: new THREE.MeshStandardMaterial({ color: col(0xd9b26f), metalness: 1, roughness: 0.25 }),
+      praline: new THREE.MeshStandardMaterial({ color: col(0xc58a3c), roughness: 0.5 }),
+      pine: new THREE.MeshPhysicalMaterial({ color: col(0xf2c94c), roughness: 0.3, clearcoat: 0.6 }),
+      crumb: new THREE.MeshStandardMaterial({ color: col(0x8f1d2c), roughness: 0.95 }),
+      kiwi: new THREE.MeshPhysicalMaterial({ color: col(0x7aa43a), roughness: 0.3, clearcoat: 0.5 }),
+      orange: new THREE.MeshPhysicalMaterial({ color: col(0xe88a2e), roughness: 0.3, clearcoat: 0.5 }),
+      straw: new THREE.MeshPhysicalMaterial({ color: col(0xc8243a), roughness: 0.25, clearcoat: 0.7 })
+    };
+    let sd = 3; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+    const ring = (n, r, f) => Array.from({ length: n }, (_, i) => { const a = i / n * TAU; return f(Math.sin(a) * r, Math.cos(a) * r, a, i); });
+    const sphere = new THREE.SphereGeometry(1, 20, 14), cube = new THREE.BoxGeometry(1, 1, 1);
+    const decos = {
+      blackforest: [batch(sphere, M.cherry, ring(8, R - 0.42, (x, z) => mtx(x, Hh + 0.1, z, 0.1, 0.1, 0.1))), batch(cube, M.choc, Array.from({ length: 70 }, () => { const a = rnd() * TAU, r = rnd() * (R - 0.55); return mtx(Math.sin(a) * r, Hh + 0.01, Math.cos(a) * r, 0.09, 0.01, 0.03, rnd() * TAU); }))],
+      butterscotch: [batch(cube, M.praline, Array.from({ length: 90 }, () => { const a = rnd() * TAU, r = rnd() * (R - 0.3); return mtx(Math.sin(a) * r, Hh + 0.015, Math.cos(a) * r, 0.05, 0.03, 0.05, rnd() * TAU, rnd(), rnd()); })), batch(sphere, M.gold, ring(12, R - 0.08, (x, z) => mtx(x, Hh + 0.2, z, 0.035, 0.035, 0.035)))],
+      pineapple: [batch(cube, M.pine, ring(10, R - 0.45, (x, z, a) => mtx(x, Hh + 0.04, z, 0.22, 0.07, 0.12, a))), batch(sphere, M.cherry, [mtx(0, Hh + 0.1, 0, 0.11, 0.11, 0.11)])],
+      redvelvet: [batch(sphere, M.crumb, Array.from({ length: 160 }, () => { const a = rnd() * TAU, r = (0.55 + rnd() * 0.45) * (R - 0.2); return mtx(Math.sin(a) * r, Hh + 0.015, Math.cos(a) * r, 0.03, 0.02, 0.03); }))],
+      fruit: [batch(sphere, M.straw, ring(5, 0.5, (x, z) => mtx(x, Hh + 0.08, z, 0.1, 0.13, 0.1))), batch(new THREE.CylinderGeometry(1, 1, 1, 24), M.kiwi, ring(5, 0.5, (x, z, a) => mtx(x * 0.45, Hh + 0.04, z * 0.45, 0.13, 0.03, 0.13, 0, 0.3, a))), batch(new THREE.CylinderGeometry(1, 1, 1, 3), M.orange, ring(6, R - 0.42, (x, z, a) => mtx(x, Hh + 0.04, z, 0.12, 0.03, 0.12, a)))],
+      choc: [batch(cube, M.choc, ring(7, 0.35, (x, z, a) => mtx(x, Hh + 0.2, z, 0.3, 0.38, 0.02, a, -0.2, 0.2))), batch(sphere, M.gold, ring(14, R - 0.08, (x, z) => mtx(x, Hh + 0.2, z, 0.035, 0.035, 0.035)))]
+    };
+    Object.values(decos).forEach(list => list.forEach(m => { m.visible = false; m.scale.setScalar(0.001); cake.add(m); }));
+    shadowsOn(cake);
+    holder.add(contact(5.5, -0.05));
+    holder.position.y = -0.4;
+    const cur = { frost: col(FLAV[0].frost), side: col(FLAV[0].side) };
+    frostTop.color.copy(cur.frost); frostSide.color.copy(cur.side);
+    let active = 0;
+    const state = { set(i) { active = i; } };
+    const layout = () => fit(renderer, camera, canvas);
+    layout(); addEventListener('resize', layout);
+    loop(canvas, (t, dt) => {
+      const f = FLAV[active], k = damp(0.1, dt);
+      frostTop.color.lerp(col(f.frost), k); frostSide.color.lerp(col(f.side), k);
+      Object.entries(decos).forEach(([name, list]) => list.forEach(m => {
+        const want = name === f.deco ? 1 : 0.001;
+        const s = m.scale.x + (want - m.scale.x) * damp(0.14, dt);
+        m.scale.setScalar(s); m.visible = s > 0.01;
+      }));
+      holder.rotation.y = t * 0.25 + mx * 0.2;
+      camera.position.set(0, 3.3, 7.6); camera.lookAt(0, 0.3, 0);
+      renderer.render(scene, camera);
+    });
+    return state;
+  }
+  const flav = initFlav();
+
+  /* ---------- intro: the oven light glows, then opens out ---------- */
+  const intro = document.getElementById('intro'), ib = document.getElementById('introBrand');
+  ib.innerHTML = ib.innerHTML.replace(/(<em>)?([^<]+)(<\/em>)?/g, (m, o, txt, c) => (o || '') + [...txt].map(ch => ch === ' ' ? ' ' : `<span class="ch">${ch}</span>`).join('') + (c || ''));
+  function heroIntro(d) {
+    gsap.from('.hero-title .line>span', { yPercent: 115, duration: 1.3, ease: 'expo.out', stagger: 0.12, delay: d });
+    gsap.from('.hero-copy .eyebrow, .hero-sub, .hero-cta, .hint', { opacity: 0, y: 24, duration: 1, ease: 'power3.out', stagger: 0.08, delay: d + 0.35 });
+    if (bento) gsap.from(bento.pop.position, { y: 2.5, duration: 1.6, ease: 'bounce.out', delay: d - 0.1 });
+  }
+  if (!motion) intro.remove();
+  else {
+    if (lenis) lenis.stop();
+    gsap.timeline({ onComplete() { intro.remove(); if (lenis) lenis.start(); } })
+      .to('.intro .glow', { opacity: 0.9, scale: 1, duration: 1.2, ease: 'power2.out' }, 0)
+      .from('#introBrand .ch', { y: 30, opacity: 0, duration: 0.8, ease: 'back.out(2)', stagger: 0.05 }, 0.2)
+      .from('.intro-txt small', { opacity: 0, duration: 0.5 }, 0.8)
+      .to('.intro-txt', { opacity: 0, scale: 0.94, duration: 0.4 }, 1.7)
+      .add(() => heroIntro(0.35), 1.8)
+      .to('.intro .glow', { scale: 4.5, opacity: 1, duration: 0.9, ease: 'power2.in' }, 1.75)
+      .to('.intro', { clipPath: 'circle(0% at 50% 50%)', duration: 1.0, ease: 'expo.inOut' }, 2.25)
+      .set('.intro', { clipPath: 'circle(150% at 50% 50%)' }, 0);
+  }
+
+  /* ---------- nav, progress, hero box ---------- */
+  const nav = document.getElementById('nav'), prog = document.getElementById('progress');
+  const write = document.getElementById('write'), nameIn = document.getElementById('nameIn'), bentoOrder = document.getElementById('bentoOrder');
+  const setBentoLink = () => { const n = nameIn.value.trim(); bentoOrder.href = WA + encodeURIComponent(`Hi, I'd like to order a bento cake${n ? ` with "Happy Birthday ${n}" written on it` : ''}. Could you share the flavours and price?`); };
+  nameIn.addEventListener('input', () => { if (bento) bento.setName(nameIn.value.trim()); setBentoLink(); });
+  setBentoLink();
+  if (motion) {
+    ScrollTrigger.create({ start: 0, end: 'max', onUpdate: s => { nav.classList.toggle('hide', s.direction === 1 && s.scroll() > 160); prog.style.transform = `scaleX(${s.progress})`; } });
+    const tl = gsap.timeline({ scrollTrigger: { trigger: '.hero', start: 'top top', end: '+=90%', pin: true, scrub: true,
+      onUpdate: s => { if (bento) bento.target = s.progress; write.classList.toggle('live', s.progress > 0.45); } } });
+    tl.to('.hero-copy', { x: -40, opacity: 0, ease: 'power1.in', duration: 0.3 }, 0)
+      .to('.hint', { opacity: 0, duration: 0.1 }, 0)
+      .fromTo('#write', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.25 }, 0.42)
+      .to({}, { duration: 0.33 });
+  } else write.classList.add('live');
+
+  /* ---------- badges: a slow strip that speeds up with your scroll ---------- */
+  const badgeText = ['100% eggless', 'FSSAI certified', 'Custom themes', 'Bento cakes', 'Tier cakes', 'Piñata cakes'];
+  const bEl = document.getElementById('badges');
+  bEl.innerHTML = Array(4).fill(badgeText.map(b => `<span>${b}<i></i></span>`).join('')).join('');
+  if (motion) {
+    const tw = gsap.fromTo(bEl, { xPercent: 0 }, { xPercent: -50, repeat: -1, duration: 30, ease: 'none' });
+    ScrollTrigger.create({ trigger: '.badges', start: 'top bottom', end: 'bottom top', onUpdate: s => { gsap.to(tw, { timeScale: 1 + Math.min(5, Math.abs(s.getVelocity()) / 400), duration: 0.2, overwrite: true, onComplete: () => gsap.to(tw, { timeScale: 1, duration: 1 }) }); } });
+  }
+
+  /* ---------- flavours: each item takes over the cake as it reaches the middle ---------- */
+  const fItems = [...document.querySelectorAll('.f-item')], fName = document.getElementById('fName');
+  const setFlav = i => { fItems.forEach((el, k) => el.classList.toggle('on', k === i)); if (flav) flav.set(i); fName.textContent = FLAV[i].name; };
+  if (motion) fItems.forEach((el, i) => ScrollTrigger.create({ trigger: el, start: 'top 60%', end: 'bottom 60%', onEnter: () => setFlav(i), onEnterBack: () => setFlav(i) }));
+  else fItems.forEach(el => el.classList.add('on'));
+
+  /* ---------- kinds: cards wipe up one after another ---------- */
+  if (motion) gsap.fromTo('.k-card', { clipPath: 'inset(100% 0% 0% 0% round 28px)', y: 40 }, { clipPath: 'inset(0% 0% 0% 0% round 28px)', y: 0, duration: 1.1, ease: 'expo.out', stagger: 0.12, scrollTrigger: { trigger: '.k-grid', start: 'top 80%' } });
+  if (motion) gsap.utils.toArray('.k-card svg').forEach(s => gsap.from(s, { rotation: -20, scale: 0.6, duration: 1.2, ease: 'back.out(2)', scrollTrigger: { trigger: s, start: 'top 85%' } }));
+
+  /* ---------- how to order: steps slide in, numbers pop ---------- */
+  if (motion) gsap.utils.toArray('.step').forEach(s => {
+    gsap.from(s, { x: 60, opacity: 0, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: s, start: 'top 82%' } });
+    gsap.from(s.querySelector('.num'), { scale: 0, duration: 0.8, ease: 'back.out(3)', scrollTrigger: { trigger: s, start: 'top 80%' } });
+  });
+
+  /* ---------- contact: the plum panel rises, letters bounce in ---------- */
+  const ct = document.getElementById('cTitle');
+  ct.setAttribute('aria-label', ct.textContent);
+  ct.innerHTML = ct.textContent.split(' ').map(w => `<span style="display:inline-block;white-space:nowrap" aria-hidden="true">${[...w].map(c => `<span class="ch">${c}</span>`).join('')}</span>`).join(' ');
+  if (motion) {
+    gsap.fromTo('.contact', { borderRadius: '200px 200px 0 0' }, { borderRadius: '48px 48px 0 0', ease: 'none', scrollTrigger: { trigger: '.contact', start: 'top bottom', end: 'top 30%', scrub: true } });
+    gsap.from('#cTitle .ch', { y: 60, opacity: 0, rotation: () => (Math.random() - 0.5) * 30, duration: 1, ease: 'back.out(2)', stagger: 0.025, scrollTrigger: { trigger: '.contact', start: 'top 55%' } });
+    gsap.from('.contact > p, .c-actions, .info > div', { opacity: 0, y: 24, duration: 1, stagger: 0.1, ease: 'power3.out', scrollTrigger: { trigger: '.contact', start: 'top 45%' } });
+  }
+
+  /* ---------- headings: words rise out of a mask ---------- */
+  document.querySelectorAll('[data-split]').forEach(h => {
+    h.innerHTML = h.innerHTML.replace(/(<em>)?([^<]+)(<\/em>)?/g, (m, o, txt, c) => (o || '') + txt.trim().split(/\s+/).map(w => `<span class="wm"><span>${w}</span></span>`).join(' ') + (c || '') + ' ');
+    if (motion) gsap.from(h.querySelectorAll('.wm>span'), { yPercent: 110, duration: 1.1, ease: 'expo.out', stagger: 0.06, scrollTrigger: { trigger: h, start: 'top 88%' } });
+  });
+
+  /* ---------- magnetic buttons ---------- */
+  if (fine && motion) document.querySelectorAll('.magnetic').forEach(el => {
+    el.addEventListener('pointermove', e => { const r = el.getBoundingClientRect(); gsap.to(el, { x: (e.clientX - r.left - r.width / 2) * 0.3, y: (e.clientY - r.top - r.height / 2) * 0.4, duration: 0.4, ease: 'power3.out' }); });
+    el.addEventListener('pointerleave', () => gsap.to(el, { x: 0, y: 0, duration: 0.9, ease: 'elastic.out(1,0.4)' }));
+  });
+
+  if (motion && document.fonts) document.fonts.ready.then(() => ScrollTrigger.refresh());
+})();
+</script>
+</body>
+</html>
